@@ -1,0 +1,27 @@
+name: Trigger Azure Pipeline
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  trigger-azure-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Trigger Azure Pipeline
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          ORGANIZATION: purushothamareddy1997
+          PROJECT: purushothama
+          PIPELINE_ID: WebApplication2
+        run: |
+          curl -X POST -u "user:${{ env.AZURE_DEVOPS_PAT }}" \
+            -H "Content-Type: application/json" \
+            -d '{"resources": {"repositories": {"self": true}}}' \
+            "https://dev.azure.com/${{ env.ORGANIZATION }}/${{ env.PROJECT }}/_apis/pipelines/${{ env.PIPELINE_ID }}/runs?api-version=6.0-preview.1"
+
