@@ -30,9 +30,9 @@ steps:
 - task: SonarCloudPrepare@1
   inputs:
     SonarCloud: 'SonarCloud'
-    organization: 'purushothama'
+    organization: 'purushothamakey'
     scannerMode: 'MSBuild'
-    projectKey: 'purushothama'
+    projectKey: 'purushothamaprojectkey'
     projectName: 'purushothama'
 - task: SonarCloudAnalyze@1
   inputs:
