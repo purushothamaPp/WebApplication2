@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- master
+- main
 
 pool:
   vmImage: 'windows-latest'
@@ -16,28 +16,20 @@ variables:
 
 steps:
 - task: NuGetToolInstaller@1
-
+ 
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
-- task: SonarCloudPrepare@1
-  inputs:
-    SonarCloud: 'SonarCloud'
-    organization: 'purushothamakey'
-    scannerMode: 'MSBuild'
-    projectKey: 'purushothamaprojectkey'
-    projectName: 'purushothama'
 
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
+  displayName: Build
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
 
-- task: SonarCloudAnalyze@1
+- task: DotNetCoreCLI@2
   inputs:
-    jdkversion: 'JAVA_HOME_17_X64'
-- task: SonarCloudPublish@1
-  inputs:
-    pollingTimeoutSec: '300'
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
