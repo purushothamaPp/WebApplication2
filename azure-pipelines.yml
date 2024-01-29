@@ -22,7 +22,7 @@ jobs:
   - task: UseDotNet@2
     inputs:
       packageType: 'sdk'
-      version: '5.x'  # Use a version that supports .NET 6.0
+      version: '6.0.100'  # Use the version of .NET SDK that supports .NET 6.0
       installationPath: $(Agent.ToolsDirectory)/dotnet  # Ensure 'dotnet' is added to the PATH
 
   - task: NuGetToolInstaller@1
