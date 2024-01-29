@@ -54,7 +54,7 @@ jobs:
     inputs:
       command: custom
       custom: 'nuget'
-      arguments: 'push "$(Build.ArtifactStagingDirectory)/**/*.nupkg" -s "$(nuGetFeed)" -k $(nuGetApiKey)'
+      arguments: 'push "$(Build.ArtifactStagingDirectory)/*.nupkg" -s "$(nuGetFeed)" -k $(nuGetApiKey)'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact'
