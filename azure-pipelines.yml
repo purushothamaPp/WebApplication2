@@ -13,8 +13,6 @@ jobs:
   variables:
     solution: '**/*.sln'
     buildConfiguration: 'Release'
-    nuGetFeed: 'YourNuGetFeed'  # Replace with the name of your NuGet feed in Azure DevOps Artifacts
-    nuGetApiKey: $(NuGetApiKey)  # Ensure that you have a secret variable named NuGetApiKey with the NuGet feed API key
 
   steps:
   - checkout: self
@@ -36,28 +34,3 @@ jobs:
   - task: DotNetCoreCLI@2
     displayName: 'Build'
     inputs:
-      command: build
-      projects: '**/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-      msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true'
-
-  - task: DotNetCoreCLI@2
-    displayName: 'Pack'
-    inputs:
-      command: pack
-      packagesToPack: '**/*.csproj'
-      configuration: '$(buildConfiguration)'
-      versioningScheme: 'off'  # Turn off versioning to use the version specified in your project
-
-  - task: DotNetCoreCLI@2
-    displayName: 'Push to NuGet Feed'
-    inputs:
-      command: custom
-      custom: 'nuget'
-      arguments: 'push "$(Build.ArtifactStagingDirectory)/*.nupkg" -s "$(nuGetFeed)" -k $(nuGetApiKey)'
-
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact'
-    inputs:
-      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'drop'
