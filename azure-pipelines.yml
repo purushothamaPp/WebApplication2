@@ -1,45 +1,63 @@
 trigger:
 - main
 
-pool:
-  name: Default
+pr:
+- '*'
 
-variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+jobs:
+- job: BuildAndPublish
+  displayName: 'Build and Publish'
+  pool:
+    name: 'Default'  # Use the default self-hosted agent pool
 
-steps:
-- task: UseDotNet@2
-  inputs:
-    packageType: 'runtime'
-    version: '3.x'
+  variables:
+    solution: '**/*.sln'
+    buildConfiguration: 'Release'
+    nuGetFeed: 'YourNuGetFeed'  # Replace with the name of your NuGet feed in Azure DevOps Artifacts
+    nuGetApiKey: $(NuGetApiKey)  # Ensure that you have a secret variable named NuGetApiKey with the NuGet feed API key
 
-- task: NuGetToolInstaller@1
-  inputs:
-    versionSpec: '5.x.x'  # Use a version that is compatible with your project
+  steps:
+  - checkout: self
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '3.x'  # Use the version that matches your project
+      installationPath: $(Agent.ToolsDirectory)/dotnet  # Ensure 'dotnet' is added to the PATH
 
-- task: DotNetCoreCLI@2
-  displayName: 'Build'
-  inputs:
-    command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true'
+  - task: NuGetToolInstaller@1
+    inputs:
+      versionSpec: '5.x.x'  # Use a version that is compatible with your project
 
-- task: DotNetCoreCLI@2
-  displayName: 'Publish'
-  inputs:
-    command: publish
-    publishWebProjects: True
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+  - task: NuGetCommand@2
+    inputs:
+      restoreSolution: '$(solution)'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact'
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: 'drop'
+  - task: DotNetCoreCLI@2
+    displayName: 'Build'
+    inputs:
+      command: build
+      projects: '**/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+      msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Pack'
+    inputs:
+      command: pack
+      packagesToPack: '**/*.csproj'
+      configuration: '$(buildConfiguration)'
+      versioningScheme: 'off'  # Turn off versioning to use the version specified in your project
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Push to NuGet Feed'
+    inputs:
+      command: custom
+      custom: 'nuget'
+      arguments: 'push "$(Build.ArtifactStagingDirectory)/**/*.nupkg" -s "$(nuGetFeed)" -k $(nuGetApiKey)'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact'
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'drop'
