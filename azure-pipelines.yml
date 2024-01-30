@@ -51,7 +51,7 @@ jobs:
     displayName: 'Push to Azure DevOps Artifacts'
     inputs:
       command: 'push'
-      packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
       nuGetFeedType: 'internal'
-      publishVstsFeed: '<Your Azure DevOps Feed Name>'
+      publishVstsFeed: 'nuGetFeedServiceConnection'
       publishPackageMetadata: true
