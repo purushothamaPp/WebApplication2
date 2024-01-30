@@ -8,12 +8,11 @@ jobs:
 - job: BuildAndPublish
   displayName: 'Build and Publish'
   pool:
-    name: 'Default'  # Use the default pool
+    name: 'Default'  # Use the default self-hosted agent pool
 
   variables:
     solution: '**/*.sln'
     buildConfiguration: 'Release'
-    nuGetFeedServiceConnection: 'YourNuGetFeed'  # Replace with the name of your NuGet feed service connection
 
   steps:
   - checkout: self
@@ -47,7 +46,6 @@ jobs:
       packagesToPack: '**/*.csproj'
       configuration: '$(buildConfiguration)'
       versioningScheme: 'off'  # Turn off versioning to use the version specified in your project
-
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact'
