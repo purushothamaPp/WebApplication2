@@ -8,13 +8,13 @@ jobs:
 - job: BuildAndPublish
   displayName: 'Build and Publish'
   pool:
-    name: 'Default'  # Use the default self-hosted agent pool
+    vmImage: 'windows-latest'
 
   variables:
     solution: '**/*.sln'
     buildConfiguration: 'Release'
     nuGetFeedServiceConnection: 'YourNuGetFeed'  # Replace with the name of your NuGet feed service connection
-    nuGetApiKey: $(NuGetApiKey)  # Ensure that you have a secret variable named NuGetApiKey with the NuGet feed API key
+    nuGetApiKey: $(NuGetApiKey)
 
   steps:
   - checkout: self
@@ -55,9 +55,8 @@ jobs:
       command: custom
       custom: 'push'
       arguments: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-      publishWebProjects: false
       nuGetFeedType: 'internal'
-      publishFeedCredentials: 'YourNuGetFeed:$(nuGetApiKey)'
+      publishFeedCredentials: '$(nuGetFeedServiceConnection):$(nuGetApiKey)'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact'
