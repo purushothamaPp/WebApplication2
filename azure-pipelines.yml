@@ -47,11 +47,3 @@ jobs:
       configuration: '$(buildConfiguration)'
       versioningScheme: 'off'  # Turn off versioning to use the version specified in your project
 
-  - task: NuGetCommand@2
-    displayName: 'Push to Azure DevOps Artifacts'
-    inputs:
-      command: 'push'
-      packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
-      nuGetFeedType: 'internal'
-      publishVstsFeed: 'nuGetFeedServiceConnection'
-      publishPackageMetadata: true
